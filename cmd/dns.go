@@ -1,11 +1,11 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 ak ak@omencyber.io
 */
 package cmd
 
 import (
 	"fmt"
-
+	"github.com/Omen-Cyber/cloud_chaser/runners"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +26,7 @@ to quickly create a Cobra application.`,
 
 func init() {
 	scanDomainCmd.AddCommand(dnsCmd)
+	runners.dnsScanner(domain)
 
 	// Here you will define your flags and configuration settings.
 

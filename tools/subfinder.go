@@ -1,17 +1,67 @@
+/*
+Copyright © 2024 ak ak@omencyber.io
+*/
+
 package tools
 
 import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/projectdiscovery/goflags"
+	"github.com/projectdiscovery/subfinder/v2/pkg/resolve"
+	"github.com/projectdiscovery/subfinder/v2/pkg/runner"
 	"io"
 	"log"
 	"strings"
 )
 
-func sublister_scan(domain string) {
+type hostInfo struct {
+	rootDomain      string
+	domain          string
+	subDomain       string
+	ipAddress       string
+	directories     string
+	alive           bool
+	tool            string
+	vulnerabilities string
+}
 
-	var scanned_subdomains []host_info
+func extractSubdomain(unoDomain *resolve.HostEntry) *hostInfo {
+
+	domainInfo := new(hostInfo)
+
+	domainSlice := unoDomain
+
+	//fmt.Println("FOUND New Subdomain: " + uno_domain.Domain)
+
+	//Validate we are dealing with a true subdomain
+	parts := strings.Split(domainSlice.Host, ".")
+
+	if len(parts) >= 2 {
+		domainInfo.rootDomain = parts[len(parts)-2] + "." + parts[len(parts)-1]
+	} else {
+		log.Fatal("Invalid subdomain string")
+	}
+
+	//Adding the root domain
+	domainInfo.rootDomain = domainSlice.Domain
+	//adding the whole domain
+	domainInfo.domain = domainSlice.Host
+	//Adding subdomain
+	domainInfo.subDomain = strings.Join(parts[:len(parts)-2], ".")
+	//adding tool
+	domainInfo.tool = domainSlice.Source
+	//domain_info.ipAddress = domain_slice.ipAddress
+	//domain_info.directories = domain_slice.ipAddress
+
+	return domainInfo
+
+}
+
+func subfinderScan(domain string) {
+
+	var scannedSubdomains []hostInfo
 
 	subfinderOpts := &runner.Options{
 		Verbose:            false,
@@ -48,8 +98,8 @@ func sublister_scan(domain string) {
 		Match:              nil,
 		Filter:             nil,
 		ResultCallback: func(s *resolve.HostEntry) {
-			var temp_domain_struct = extract_subdomain(s)
-			scanned_subdomains = append(scanned_subdomains, *temp_domain_struct)
+			var tempDomainStruct = extractSubdomain(s)
+			scannedSubdomains = append(scannedSubdomains, *tempDomainStruct)
 		},
 		DisableUpdateCheck: false,
 	}
@@ -67,39 +117,7 @@ func sublister_scan(domain string) {
 
 	}
 
-	for _, domains := range scanned_subdomains {
+	for _, domains := range scannedSubdomains {
 		fmt.Printf("Subdomain %s: %s\n", domains.subDomain, domains.tool)
 	}
-}
-
-func extract_subdomain(uno_domain *resolve.HostEntry) *host_info {
-
-	domain_info := new(host_info)
-
-	domain_slice := uno_domain
-
-	//fmt.Println("FOUND New Subdomain: " + uno_domain.Domain)
-
-	//Validate we are dealing with a true subdomain
-	parts := strings.Split(domain_slice.Host, ".")
-
-	if len(parts) >= 2 {
-		domain_info.rootDomain = parts[len(parts)-2] + "." + parts[len(parts)-1]
-	} else {
-		log.Fatal("Invalid subdomain string")
-	}
-
-	//Adding the root domain
-	domain_info.rootDomain = domain_slice.Domain
-	//adding the whole domain
-	domain_info.domain = domain_slice.Host
-	//Adding subdomain
-	domain_info.subDomain = strings.Join(parts[:len(parts)-2], ".")
-	//adding tool
-	domain_info.tool = domain_slice.Source
-	//domain_info.ipAddress = domain_slice.ipAddress
-	//domain_info.directories = domain_slice.ipAddress
-
-	return domain_info
-
 }

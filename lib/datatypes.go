@@ -1,6 +1,9 @@
+/*
+Copyright © 2024 ak ak@omencyber.io
+*/
 package lib
 
-type host_info struct {
+type hostInfo struct {
 	rootDomain      string
 	domain          string
 	subDomain       string
