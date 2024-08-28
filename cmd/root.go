@@ -4,6 +4,7 @@ Copyright © 2024 ak ak@omencyber.io
 package cmd
 
 import (
+	"github.com/Omen-Cyber/cloud_chaser/cmd/scanDomain"
 	_ "github.com/Omen-Cyber/cloud_chaser/runners"
 	"github.com/spf13/cobra"
 	"os"
@@ -15,15 +16,9 @@ var rootCmd = &cobra.Command{
 	Long:  `Just Checking :)`,
 }
 
-var (
-	scanDomain string
-)
-
 func init() {
-	rootCmd.PersistentFlags().StringVar(&scanDomain, "domain", "d", "root domain to be scanned")
-	rootCmd.MarkFlagRequired("domain")
 	rootCmd.SetVersionTemplate(`v0.1`)
-
+	rootCmd.AddCommand(scanDomain.ScanDomainCmd)
 }
 
 func Execute() {

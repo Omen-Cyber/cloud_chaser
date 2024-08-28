@@ -2,12 +2,14 @@
 Copyright © 2024 ak ak@omencyber.io
 */
 
-package tools
+package subfinder
 
 import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/Omen-Cyber/cloud_chaser/lib/datatypes"
+	"github.com/Omen-Cyber/cloud_chaser/lib/utils"
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/subfinder/v2/pkg/resolve"
 	"github.com/projectdiscovery/subfinder/v2/pkg/runner"
@@ -16,20 +18,9 @@ import (
 	"strings"
 )
 
-type hostInfo struct {
-	rootDomain      string
-	domain          string
-	subDomain       string
-	ipAddress       string
-	directories     string
-	alive           bool
-	tool            string
-	vulnerabilities string
-}
+func extractSubdomain(unoDomain *resolve.HostEntry) *datatypes.HostInfo {
 
-func extractSubdomain(unoDomain *resolve.HostEntry) *hostInfo {
-
-	domainInfo := new(hostInfo)
+	domainInfo := new(datatypes.HostInfo)
 
 	domainSlice := unoDomain
 
@@ -39,19 +30,19 @@ func extractSubdomain(unoDomain *resolve.HostEntry) *hostInfo {
 	parts := strings.Split(domainSlice.Host, ".")
 
 	if len(parts) >= 2 {
-		domainInfo.rootDomain = parts[len(parts)-2] + "." + parts[len(parts)-1]
+		domainInfo.RootDomain = parts[len(parts)-2] + "." + parts[len(parts)-1]
 	} else {
 		log.Fatal("Invalid subdomain string")
 	}
 
 	//Adding the root domain
-	domainInfo.rootDomain = domainSlice.Domain
+	domainInfo.RootDomain = domainSlice.Domain
 	//adding the whole domain
-	domainInfo.domain = domainSlice.Host
+	domainInfo.Domain = domainSlice.Host
 	//Adding subdomain
-	domainInfo.subDomain = strings.Join(parts[:len(parts)-2], ".")
+	domainInfo.SubDomain = strings.Join(parts[:len(parts)-2], ".")
 	//adding tool
-	domainInfo.tool = domainSlice.Source
+	domainInfo.Tool = domainSlice.Source
 	//domain_info.ipAddress = domain_slice.ipAddress
 	//domain_info.directories = domain_slice.ipAddress
 
@@ -59,9 +50,9 @@ func extractSubdomain(unoDomain *resolve.HostEntry) *hostInfo {
 
 }
 
-func subfinderScan(domain string) {
+func Scan(domain string) {
 
-	var scannedSubdomains []hostInfo
+	var scannedSubdomains []datatypes.HostInfo
 
 	subfinderOpts := &runner.Options{
 		Verbose:            false,
@@ -118,6 +109,11 @@ func subfinderScan(domain string) {
 	}
 
 	for _, domains := range scannedSubdomains {
-		fmt.Printf("Subdomain %s: %s\n", domains.subDomain, domains.tool)
+		fmt.Printf("Subdomain %s: %s\n", domains.SubDomain, domains.Tool)
 	}
+	erro := utils.BQConnection()
+	if erro != nil {
+		fmt.Println(erro)
+	}
+
 }
