@@ -6,6 +6,8 @@ package scanDomain
 import (
 	"fmt"
 	"github.com/Omen-Cyber/cloud_chaser/cmd/scanDomain/dns"
+	"github.com/Omen-Cyber/cloud_chaser/cmd/scanDomain/live"
+	"github.com/Omen-Cyber/cloud_chaser/cmd/scanDomain/recon"
 	"github.com/spf13/cobra"
 )
 
@@ -32,5 +34,7 @@ func init() {
 	ScanDomainCmd.PersistentFlags().StringVar(&domain2Scan, "domain", "", "root domain to be scanned")
 	ScanDomainCmd.MarkFlagRequired("domain")
 	ScanDomainCmd.AddCommand(dns.DnsCmd)
+	ScanDomainCmd.AddCommand(live.LiveCmd)
+	ScanDomainCmd.AddCommand(recon.ReconCmd)
 
 }

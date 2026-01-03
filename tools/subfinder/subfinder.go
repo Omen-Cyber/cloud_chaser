@@ -43,14 +43,18 @@ func extractSubdomain(unoDomain *resolve.HostEntry) *datatypes.HostInfo {
 	domainInfo.SubDomain = strings.Join(parts[:len(parts)-2], ".")
 	//adding tool
 	domainInfo.Tool = domainSlice.Source
-	//domain_info.ipAddress = domain_slice.ipAddress
-	//domain_info.directories = domain_slice.ipAddress
+	//adding IP address
+	domainInfo.IpAddress = "None"
+	//Default values
+	domainInfo.Alive = "True"
+	domainInfo.Directories = "None"
+	domainInfo.Technologies = "None"
+	domainInfo.Vulnerabilities = "None"
 
 	return domainInfo
-
 }
 
-func Scan(domain string) {
+func Scan(domain string) []datatypes.HostInfo {
 
 	var scannedSubdomains []datatypes.HostInfo
 
@@ -111,9 +115,10 @@ func Scan(domain string) {
 	for _, domains := range scannedSubdomains {
 		fmt.Printf("Subdomain %s: %s\n", domains.SubDomain, domains.Tool)
 	}
-	erro := utils.BQConnection()
-	if erro != nil {
-		fmt.Println(erro)
+	err = utils.SaveHostInfo(scannedSubdomains)
+	if err != nil {
+		fmt.Printf("Error saving to BigQuery: %v\n", err)
 	}
 
+	return scannedSubdomains
 }
